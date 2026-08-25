@@ -3,7 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+
 # dotenv files
+
 .env
 
 # User-specific files
@@ -407,6 +409,7 @@ FodyWeavers.xsd
 ##
 ## Visual studio for Mac
 ##
+**/AGENTS.md
 
 
 # globs

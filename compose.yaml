@@ -1,0 +1,41 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: compliance-sqlserver
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      MSSQL_PID: "Developer"
+
+    ports:
+      - "1433:1433"
+
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+    restart: unless-stopped
+
+  api:
+    container_name: compliance-api
+
+    build:
+      context: .
+      dockerfile: src/ComplianceSystem.Api/Dockerfile
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=ComplianceDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - sqlserver
+
+    restart: unless-stopped
+
+volumes:
+  sqlserver-data:
