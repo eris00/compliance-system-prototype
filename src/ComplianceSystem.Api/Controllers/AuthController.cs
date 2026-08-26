@@ -1,4 +1,6 @@
 using ComplianceSystem.Application.Authentication.Commands.Login;
+using ComplianceSystem.Application.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +11,14 @@ namespace ComplianceSystem.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly ISender _sender;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AuthController(ISender sender)
+    public AuthController(
+        ISender sender,
+        ICurrentUserService currentUserService)
     {
         _sender = sender;
+        _currentUserService = currentUserService;
     }
 
     [HttpPost("login")]
@@ -31,4 +37,24 @@ public class AuthController : ControllerBase
 
         return Ok(result);
     }
+
+    [Authorize]
+    [HttpGet("me")]
+    public ActionResult<CurrentUserResponse> Me()
+    {
+        if (_currentUserService.UserId is not { } userId)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(new CurrentUserResponse(
+            userId,
+            _currentUserService.Email,
+            _currentUserService.IsAuthenticated));
+    }
+
+    public record CurrentUserResponse(
+        Guid UserId,
+        string? Email,
+        bool IsAuthenticated);
 }

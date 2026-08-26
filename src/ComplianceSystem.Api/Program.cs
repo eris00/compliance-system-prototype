@@ -1,5 +1,7 @@
 using ComplianceSystem.Infrastructure;
 using ComplianceSystem.Application;
+using ComplianceSystem.Application.Common.Interfaces;
+using ComplianceSystem.Api.Services;
 
 using Microsoft.AspNetCore.Identity;
 using ComplianceSystem.Infrastructure.Identity;
@@ -11,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
