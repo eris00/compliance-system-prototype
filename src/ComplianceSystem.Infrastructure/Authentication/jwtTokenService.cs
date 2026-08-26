@@ -18,7 +18,8 @@ public class JwtTokenService : ITokenService
 
     public string CreateToken(
         string userId,
-        string email)
+        string email,
+        IReadOnlyCollection<string> roles)
     {
         var key = _configuration["Jwt:Key"]
             ?? throw new InvalidOperationException(
@@ -30,7 +31,7 @@ public class JwtTokenService : ITokenService
         var expirationMinutes =
             _configuration.GetValue<int>("Jwt:ExpirationMinutes");
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(
                 ClaimTypes.NameIdentifier,
@@ -40,6 +41,11 @@ public class JwtTokenService : ITokenService
                 ClaimTypes.Email,
                 email)
         };
+
+        claims.AddRange(
+            roles.Select(role => new Claim(
+                ClaimTypes.Role,
+                role)));
 
         var securityKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(key));

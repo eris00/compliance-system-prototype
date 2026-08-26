@@ -32,7 +32,8 @@ public class LoginCommandHandler
 
         var token = _tokenService.CreateToken(
             user.Id,
-            user.Email);
+            user.Email,
+            user.Roles);
 
         return new LoginResult(token);
     }

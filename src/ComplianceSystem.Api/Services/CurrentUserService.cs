@@ -27,6 +27,12 @@ public class CurrentUserService : ICurrentUserService
     public string? Email =>
         User?.FindFirstValue(ClaimTypes.Email);
 
+    public IReadOnlyCollection<string> Roles =>
+        User?.FindAll(ClaimTypes.Role)
+            .Select(claim => claim.Value)
+            .ToArray()
+        ?? [];
+
     public bool IsAuthenticated =>
         User?.Identity?.IsAuthenticated == true;
 

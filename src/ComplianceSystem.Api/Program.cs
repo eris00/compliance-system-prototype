@@ -52,7 +52,12 @@ using (var scope = app.Services.CreateScope())
     var userManager =
         scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-    await IdentitySeeder.SeedAsync(userManager);
+    var roleManager =
+        scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+
+    await IdentitySeeder.SeedAsync(
+        userManager,
+        roleManager);
 }
 
 if (app.Environment.IsDevelopment())

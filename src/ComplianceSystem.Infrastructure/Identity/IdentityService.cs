@@ -33,8 +33,11 @@ public class IdentityService : IIdentityService
             return null;
         }
 
+        var roles = await _userManager.GetRolesAsync(user);
+
         return new AuthenticatedUser(
             user.Id.ToString(),
-            user.Email!);
+            user.Email!,
+            roles.ToArray());
     }
 }

@@ -50,11 +50,13 @@ public class AuthController : ControllerBase
         return Ok(new CurrentUserResponse(
             userId,
             _currentUserService.Email,
+            _currentUserService.Roles,
             _currentUserService.IsAuthenticated));
     }
 
     public record CurrentUserResponse(
         Guid UserId,
         string? Email,
+        IReadOnlyCollection<string> Roles,
         bool IsAuthenticated);
 }
