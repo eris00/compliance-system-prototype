@@ -1,8 +1,10 @@
+using ComplianceSystem.Application.Authentication.Models;
+
 namespace ComplianceSystem.Application.Common.Interfaces;
 
 public interface IIdentityService
 {
-    Task<bool> CheckPasswordAsync(
+    Task<AuthenticatedUser?> AuthenticateAsync(
         string email,
         string password);
 }

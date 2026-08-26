@@ -1,3 +1,4 @@
+using ComplianceSystem.Application.Authentication.Models;
 using ComplianceSystem.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,15 +14,27 @@ public class IdentityService : IIdentityService
         _userManager = userManager;
     }
 
-    public async Task<bool> CheckPasswordAsync(
+    public async Task<AuthenticatedUser?> AuthenticateAsync(
         string email,
         string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
         if (user is null)
-            return false;
+        {
+            return null;
+        }
 
-        return await _userManager.CheckPasswordAsync(user, password);
+        var isValidPassword =
+            await _userManager.CheckPasswordAsync(user, password);
+
+        if (!isValidPassword)
+        {
+            return null;
+        }
+
+        return new AuthenticatedUser(
+            user.Id.ToString(),
+            user.Email!);
     }
 }

@@ -16,19 +16,19 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(
+    public async Task<ActionResult<LoginResult>> Login(
         LoginCommand command,
         CancellationToken cancellationToken)
     {
-        var isValid = await _sender.Send(
+        var result = await _sender.Send(
             command,
             cancellationToken);
 
-        if (!isValid)
+        if (result is null)
         {
             return Unauthorized();
         }
 
-        return Ok();
+        return Ok(result);
     }
 }

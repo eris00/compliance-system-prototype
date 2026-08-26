@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ComplianceSystem.Api.Controllers;
@@ -6,7 +7,8 @@ namespace ComplianceSystem.Api.Controllers;
 [Route("api/[controller]")]
 public class CasesController : ControllerBase
 {
-    [HttpGet]
+    [Authorize]
+    [HttpGet("protected")]
     public IActionResult GetAll()
     {
         return Ok("Cases endpoint works.");
