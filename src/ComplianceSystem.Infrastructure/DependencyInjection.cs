@@ -1,10 +1,10 @@
 using ComplianceSystem.Application.Common.Interfaces;
-using ComplianceSystem.Infrastructure.Identity;
 using ComplianceSystem.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ComplianceSystem.Infrastructure.Identity;
 
 namespace ComplianceSystem.Infrastructure;
 
@@ -25,6 +25,8 @@ public static class DependencyInjection
             .AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<AppDbContext>();
+
+        services.AddScoped<IIdentityService, IdentityService>();
 
         return services;
     }
