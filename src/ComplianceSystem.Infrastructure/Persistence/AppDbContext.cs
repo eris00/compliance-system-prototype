@@ -16,6 +16,12 @@ public class AppDbContext
     {
     }
 
-    public DbSet<Case> Cases =>
-        Set<Case>();
+    public DbSet<Case> Cases => Set<Case>();
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+    }
 }
