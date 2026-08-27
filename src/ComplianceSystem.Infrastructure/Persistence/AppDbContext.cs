@@ -18,6 +18,8 @@ public class AppDbContext
 
     public DbSet<Case> Cases => Set<Case>();
 
+    public DbSet<CaseCategory> CaseCategories => Set<CaseCategory>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

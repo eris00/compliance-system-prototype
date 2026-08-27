@@ -7,6 +7,8 @@ public interface IApplicationDbContext
 {
     DbSet<Case> Cases { get; }
 
+    DbSet<CaseCategory> CaseCategories { get; }
+
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 }
