@@ -9,6 +9,8 @@ public interface IApplicationDbContext
 
     DbSet<CaseCategory> CaseCategories { get; }
 
+    DbSet<AuditEntry> AuditEntries { get; }
+
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 }

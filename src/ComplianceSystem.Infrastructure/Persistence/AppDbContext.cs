@@ -20,6 +20,8 @@ public class AppDbContext
 
     public DbSet<CaseCategory> CaseCategories => Set<CaseCategory>();
 
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
