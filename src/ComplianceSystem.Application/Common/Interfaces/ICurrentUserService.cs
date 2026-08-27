@@ -9,4 +9,6 @@ public interface ICurrentUserService
     IReadOnlyCollection<string> Roles { get; }
 
     bool IsAuthenticated { get; }
+
+    bool IsInRole(string role);
 }

@@ -40,4 +40,21 @@ public class IdentityService : IIdentityService
             user.Email!,
             roles.ToArray());
     }
+
+    public async Task<bool> UserExistsAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        return user is not null;
+    }
+
+    public async Task<bool> IsInRoleAsync(
+        Guid userId,
+        string role)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        return user is not null
+            && await _userManager.IsInRoleAsync(user, role);
+    }
 }

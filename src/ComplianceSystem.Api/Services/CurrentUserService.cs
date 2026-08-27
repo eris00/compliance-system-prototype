@@ -36,6 +36,11 @@ public class CurrentUserService : ICurrentUserService
     public bool IsAuthenticated =>
         User?.Identity?.IsAuthenticated == true;
 
+    public bool IsInRole(string role)
+    {
+        return User?.IsInRole(role) == true;
+    }
+
     private ClaimsPrincipal? User =>
         _httpContextAccessor.HttpContext?.User;
 }
