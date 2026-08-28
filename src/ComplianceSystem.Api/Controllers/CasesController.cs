@@ -1,3 +1,4 @@
+using ComplianceSystem.Application.Cases.Commands.CloseCase;
 using ComplianceSystem.Application.Cases.Commands.CreateCase;
 using ComplianceSystem.Application.Cases.Commands.ResolveCase;
 using ComplianceSystem.Application.Cases.Commands.StartReview;
@@ -69,6 +70,26 @@ public class CasesController : ControllerBase
                     id,
                     request.Outcome,
                     request.Explanation),
+                cancellationToken);
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
+    [Authorize(Roles = AppRoles.Supervisor)]
+    [HttpPost("{id:guid}/close")]
+    public async Task<IActionResult> Close(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _sender.Send(
+                new CloseCaseCommand(id),
                 cancellationToken);
         }
         catch (NotFoundException)
