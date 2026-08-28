@@ -172,6 +172,30 @@ public class Case
         Status = CaseStatus.InReview;
     }
 
+    public void Escalate(DateTime utcNow)
+    {
+        if (IsEscalated)
+        {
+            throw new DomainException("Case is already escalated.");
+        }
+
+        if (Status != CaseStatus.Open
+            && Status != CaseStatus.InReview)
+        {
+            throw new DomainException(
+                "Only an active case can be escalated.");
+        }
+
+        if (DueAt > utcNow)
+        {
+            throw new DomainException(
+                "Case cannot be escalated before its due date.");
+        }
+
+        IsEscalated = true;
+        EscalatedAt = utcNow;
+    }
+
     public void Close()
     {
         if (Status == CaseStatus.Closed)

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ComplianceSystem.Infrastructure.BackgroundServices;
 using ComplianceSystem.Infrastructure.Identity;
 using ComplianceSystem.Infrastructure.Authentication;
 
@@ -34,6 +35,8 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
 
         services.AddScoped<ITokenService, JwtTokenService>();
+
+        services.AddHostedService<AutomaticEscalationBackgroundService>();
 
         var jwtKey = configuration["Jwt:Key"]
         ?? throw new InvalidOperationException(
