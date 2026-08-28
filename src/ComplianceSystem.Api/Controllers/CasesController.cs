@@ -1,4 +1,6 @@
 using ComplianceSystem.Application.Cases.Commands.CreateCase;
+using ComplianceSystem.Application.Cases.Commands.StartReview;
+using ComplianceSystem.Application.Common.Exceptions;
 using ComplianceSystem.Application.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -30,6 +32,26 @@ public class CasesController : ControllerBase
         return Created(
             $"/api/cases/{caseId}",
             new { id = caseId });
+    }
+
+    [Authorize(Roles = AppRoles.Analyst)]
+    [HttpPost("{id:guid}/start-review")]
+    public async Task<IActionResult> StartReview(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _sender.Send(
+                new StartReviewCommand(id),
+                cancellationToken);
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
     }
 
     [Authorize]

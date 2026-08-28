@@ -143,6 +143,17 @@ public class Case
         Status = CaseStatus.Resolved;
     }
 
+    public void StartReview()
+    {
+        if (Status != CaseStatus.Open)
+        {
+            throw new DomainException(
+                "Only an open case can be moved to review.");
+        }
+
+        Status = CaseStatus.InReview;
+    }
+
     public void Close()
     {
         if (Status == CaseStatus.Closed)
