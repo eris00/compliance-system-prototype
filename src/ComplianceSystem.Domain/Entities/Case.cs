@@ -7,6 +7,8 @@ public class Case
 {
     private const int MaxTitleLength = 200;
     private const int MaxDescriptionLength = 2000;
+    private const int MaxResolutionOutcomeLength = 200;
+    private const int MaxResolutionExplanationLength = 2000;
 
     public Guid Id { get; private set; }
 
@@ -131,14 +133,30 @@ public class Case
                 "Resolution outcome is required.");
         }
 
+        var trimmedOutcome = outcome.Trim();
+
+        if (trimmedOutcome.Length > MaxResolutionOutcomeLength)
+        {
+            throw new DomainException(
+                $"Resolution outcome cannot exceed {MaxResolutionOutcomeLength} characters.");
+        }
+
         if (string.IsNullOrWhiteSpace(explanation))
         {
             throw new DomainException(
                 "Resolution explanation is required.");
         }
 
-        ResolutionOutcome = outcome.Trim();
-        ResolutionExplanation = explanation.Trim();
+        var trimmedExplanation = explanation.Trim();
+
+        if (trimmedExplanation.Length > MaxResolutionExplanationLength)
+        {
+            throw new DomainException(
+                $"Resolution explanation cannot exceed {MaxResolutionExplanationLength} characters.");
+        }
+
+        ResolutionOutcome = trimmedOutcome;
+        ResolutionExplanation = trimmedExplanation;
         ResolvedAt = DateTime.UtcNow;
         Status = CaseStatus.Resolved;
     }

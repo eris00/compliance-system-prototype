@@ -1,4 +1,5 @@
 using ComplianceSystem.Application.Cases.Commands.CreateCase;
+using ComplianceSystem.Application.Cases.Commands.ResolveCase;
 using ComplianceSystem.Application.Cases.Commands.StartReview;
 using ComplianceSystem.Application.Common.Exceptions;
 using ComplianceSystem.Application.Common.Security;
@@ -54,10 +55,38 @@ public class CasesController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = AppRoles.Analyst)]
+    [HttpPost("{id:guid}/resolve")]
+    public async Task<IActionResult> Resolve(
+        Guid id,
+        ResolveCaseRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _sender.Send(
+                new ResolveCaseCommand(
+                    id,
+                    request.Outcome,
+                    request.Explanation),
+                cancellationToken);
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
     [Authorize]
     [HttpGet("protected")]
     public IActionResult GetAll()
     {
         return Ok("Cases endpoint works.");
     }
+
+    public sealed record ResolveCaseRequest(
+        string Outcome,
+        string Explanation);
 }
