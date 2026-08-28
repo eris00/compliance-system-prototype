@@ -1,6 +1,7 @@
 using ComplianceSystem.Application.Authentication.Models;
 using ComplianceSystem.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ComplianceSystem.Infrastructure.Identity;
 
@@ -56,5 +57,32 @@ public class IdentityService : IIdentityService
 
         return user is not null
             && await _userManager.IsInRoleAsync(user, role);
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, string>> GetUserNamesAsync(
+        IEnumerable<Guid> userIds,
+        CancellationToken cancellationToken)
+    {
+        var distinctUserIds = userIds
+            .Where(userId => userId != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        if (distinctUserIds.Length == 0)
+        {
+            return new Dictionary<Guid, string>();
+        }
+
+        return await _userManager.Users
+            .Where(user => distinctUserIds.Contains(user.Id))
+            .Select(user => new
+            {
+                user.Id,
+                Name = user.UserName ?? user.Email ?? "Unknown user"
+            })
+            .ToDictionaryAsync(
+                user => user.Id,
+                user => user.Name,
+                cancellationToken);
     }
 }

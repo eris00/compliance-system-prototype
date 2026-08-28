@@ -13,4 +13,8 @@ public interface IIdentityService
     Task<bool> IsInRoleAsync(
         Guid userId,
         string role);
+
+    Task<IReadOnlyDictionary<Guid, string>> GetUserNamesAsync(
+        IEnumerable<Guid> userIds,
+        CancellationToken cancellationToken);
 }

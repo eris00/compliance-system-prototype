@@ -2,8 +2,13 @@ using ComplianceSystem.Application.Cases.Commands.CloseCase;
 using ComplianceSystem.Application.Cases.Commands.CreateCase;
 using ComplianceSystem.Application.Cases.Commands.ResolveCase;
 using ComplianceSystem.Application.Cases.Commands.StartReview;
+using ComplianceSystem.Application.Cases.Dtos;
+using ComplianceSystem.Application.Cases.Queries.GetCaseAuditTrail;
+using ComplianceSystem.Application.Cases.Queries.GetCaseDetails;
+using ComplianceSystem.Application.Cases.Queries.GetCases;
 using ComplianceSystem.Application.Common.Exceptions;
 using ComplianceSystem.Application.Common.Security;
+using ComplianceSystem.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +24,84 @@ public class CasesController : ControllerBase
     public CasesController(ISender sender)
     {
         _sender = sender;
+    }
+
+    [Authorize(Roles = AppRoles.Analyst + "," + AppRoles.Supervisor + "," + AppRoles.Auditor)]
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<CaseListItemDto>>> GetCases(
+        [FromQuery] CaseStatus? status,
+        [FromQuery] SeverityLevel? severity,
+        [FromQuery] Guid? categoryId,
+        [FromQuery] bool? isEscalated,
+        [FromQuery] Guid? assignedAnalystId,
+        CancellationToken cancellationToken)
+    {
+        if (status is { } statusValue
+            && !Enum.IsDefined(statusValue))
+        {
+            return BadRequest(CreateInvalidEnumProblemDetails(
+                nameof(status),
+                "Case status filter is invalid."));
+        }
+
+        if (severity is { } severityValue
+            && !Enum.IsDefined(severityValue))
+        {
+            return BadRequest(CreateInvalidEnumProblemDetails(
+                nameof(severity),
+                "Case severity filter is invalid."));
+        }
+
+        var result = await _sender.Send(
+            new GetCasesQuery(
+                status,
+                severity,
+                categoryId,
+                isEscalated,
+                assignedAnalystId),
+            cancellationToken);
+
+        return Ok(result);
+    }
+
+    [Authorize(Roles = AppRoles.Analyst + "," + AppRoles.Supervisor + "," + AppRoles.Auditor)]
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<CaseDetailsDto>> GetById(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _sender.Send(
+                new GetCaseDetailsQuery(id),
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [Authorize(Roles = AppRoles.Analyst + "," + AppRoles.Supervisor + "," + AppRoles.Auditor)]
+    [HttpGet("{id:guid}/audit")]
+    public async Task<ActionResult<IReadOnlyList<AuditEntryDto>>> GetAuditTrail(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _sender.Send(
+                new GetCaseAuditTrailQuery(id),
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [Authorize(Roles = AppRoles.Analyst + "," + AppRoles.Supervisor)]
@@ -100,14 +183,19 @@ public class CasesController : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
-    [HttpGet("protected")]
-    public IActionResult GetAll()
-    {
-        return Ok("Cases endpoint works.");
-    }
-
     public sealed record ResolveCaseRequest(
         string Outcome,
         string Explanation);
+
+    private static ProblemDetails CreateInvalidEnumProblemDetails(
+        string parameterName,
+        string detail)
+    {
+        return new ProblemDetails
+        {
+            Title = "Invalid query parameter.",
+            Detail = $"{detail} Parameter: {parameterName}.",
+            Status = StatusCodes.Status400BadRequest
+        };
+    }
 }
